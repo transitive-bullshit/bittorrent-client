@@ -1,0 +1,35 @@
+{
+  "name": "bittorrent-client",
+  "description": "Simple, robust, streaming bittorrent client.",
+  "version": "0.0.0",
+  "author": {
+    "name": "Feross Aboukhadijeh",
+    "email": "feross@feross.org",
+    "url": "http://feross.org/"
+  },
+  "bugs": {
+    "url": "https://github.com/feross/bittorrent-client/issues"
+  },
+  "devDependencies": {
+    "tape": "2.x"
+  },
+  "homepage": "http://webtorrent.io",
+  "keywords": [
+    "torrent",
+    "bittorrent",
+    "bittorrent client",
+    "streaming",
+    "download",
+    "webtorrent",
+    "mad science"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/feross/bittorrent-client.git"
+  },
+  "scripts": {
+    "test": "tape test/*.js"
+  }
+}
