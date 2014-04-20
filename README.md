@@ -20,11 +20,11 @@ necessary) and to discover new peers. If the magnet uri or .torrent file contain
 urls, the client automatically connects to trackers to discover new peers.
 
 ```js
-var TorrentClient = require('bittorrent-client')
+var BitTorrentClient = require('bittorrent-client')
 
 // "Pride and Prejudice" by Jane Austen
 var magnet = 'magnet:?xt=urn:btih:1e69917fbaa2c767bca463a96b5572785c6d8a12'
-var client = TorrentClient(magnet)
+var client = BitTorrentClient(magnet)
 
 client.on('torrent', function (torrent) {
   // torrent metadata has been fetched
@@ -81,7 +81,7 @@ client.add(url)
 
 ### client api
 
-#### `client = TorrentClient([torrentId], [opts])`
+#### `client = BitTorrentClient([torrentId], [opts])`
 
 Create a new `bittorrent-client` instance.
 
@@ -112,10 +112,6 @@ If `opts` is specified, then the default options (shown below) will be overridde
 Emitted when a torrent is ready to be used. See the torrent section for more info on what
 methods a `torrent` has.
 
-#### `client.torrents[...]`
-
-An array of all torrents in the client.
-
 #### `client.add(torrentId)`
 
 Add a new torrent to the client. `torrentId` can be any type accepted by the constructor.
@@ -133,6 +129,15 @@ Destroy the client, including all torrents and connections to peers.
 #### `client.listen([port], function () {})`
 
 Listen for incoming peers on the specified port. Port defaults to `6881`
+
+#### `client.torrents[...]`
+
+An array of all torrents in the client.
+
+#### `client.get(torrentId)`
+
+Return the torrent with the given `torrentId`. Easier that searching through the
+`client.torrents` array by hand for the torrent you want.
 
 ### torrent api
 
