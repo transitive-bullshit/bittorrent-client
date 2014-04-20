@@ -1,4 +1,4 @@
-# bittorrent-client [![build](https://img.shields.io/travis/feross/bitorrent-client.svg)](https://travis-ci.org/feross/bitorrent-client) [![npm](https://img.shields.io/npm/v/bitorrent-client.svg)](https://npmjs.org/package/bitorrent-client) [![gittip](https://img.shields.io/gittip/feross.svg)](https://www.gittip.com/feross/)
+# bittorrent-client [![build](https://img.shields.io/travis/feross/bittorrent-client.svg)](https://travis-ci.org/feross/bittorrent-client) [![npm](https://img.shields.io/npm/v/bittorrent-client.svg)](https://npmjs.org/package/bittorrent-client) [![gittip](https://img.shields.io/gittip/feross.svg)](https://www.gittip.com/feross/)
 
 ### Fast, streaming torrent client
 
