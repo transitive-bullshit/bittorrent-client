@@ -88,10 +88,9 @@ Create a new `bittorrent-client` instance.
 If `torrentId` is specified, then the client will start with this torrent already added.
 `torrentId` can be any of the following:
 
-- info hash (hex string/Buffer)
-- magnet uri (string)
-- path to .torrent file on filesystem, or http url (string)
-- buffer of .torrent file contents
+- info hash (as a hex string or Buffer)
+- magnet uri (as a utf8 string)
+- .torrent file (as a Buffer)
 - parsed torrent object from
   [parse-torrent](https://www.npmjs.org/package/parse-torrent) module
 
@@ -99,11 +98,11 @@ If `opts` is specified, then the default options (shown below) will be overridde
 
 ``` js
 {
+  maxDHT: 100,            // Max number of DHT nodes to connect to (across all torrents)
   maxPeers: 100,          // Max number of peers to connect to (per torrent)
   path: '/tmp/some-name', // Where to save the torrent file data
-  verify: true,           // Verify previously stored data before starting
-  maxDHT: 100,            // Max number of DHT nodes to connect to (across all torrents)
-  tracker: true           // Whether or not to use a tracker
+  tracker: true,          // Whether or not to use a tracker
+  verify: true            // Verify previously stored data before starting
 }
 ```
 
