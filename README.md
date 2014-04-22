@@ -91,16 +91,16 @@ If `torrentId` is specified, then the client will start with this torrent alread
 - info hash (as a hex string or Buffer)
 - magnet uri (as a utf8 string)
 - .torrent file (as a Buffer)
-- parsed torrent object from
-  [parse-torrent](https://www.npmjs.org/package/parse-torrent) module
 
 If `opts` is specified, then the default options (shown below) will be overridden.
 
 ``` js
 {
-  maxDHT: 100,            // Max number of DHT nodes to connect to (across all torrents)
+  maxDHT: 100,            // Max number of peers to find through DHT (across all torrents)
   maxPeers: 100,          // Max number of peers to connect to (per torrent)
   path: '/tmp/some-name', // Where to save the torrent file data
+  peerId: '',             // Wire protocol peer ID (otherwise, randomly generated)
+  nodeId: '',             // DHT protocol node ID (otherwise, randomly generated)
   tracker: true,          // Whether or not to use a tracker
   verify: true            // Verify previously stored data before starting
 }
@@ -113,7 +113,8 @@ methods a `torrent` has.
 
 #### `client.add(torrentId)`
 
-Add a new torrent to the client. `torrentId` can be any type accepted by the constructor.
+Add a new torrent to the client. `torrentId` can be any type accepted by the constructor:
+magnet uri (utf8 string), torrent file (buffer), or info hash (hex string or buffer).
 `client.add` is called internally when a `torrentId` is passed into the constructor.
 
 #### `client.remove(torrentId, [function (err) {}])`
@@ -135,8 +136,13 @@ An array of all torrents in the client.
 
 #### `client.get(torrentId)`
 
-Return the torrent with the given `torrentId`. Easier that searching through the
+Return the torrent with the given `torrentId`. Easier than searching through the
 `client.torrents` array by hand for the torrent you want.
+
+#### `client.ratio`
+
+Aggregate seed ratio for all torrents in the client.
+
 
 ### torrent api
 
@@ -152,6 +158,7 @@ The attached [bittorrent-swarm](https://github.com/feross/bittorrent-swarm) inst
 #### `torrent.remove()`
 
 Alias for `client.remove(torrent)`.
+
 
 ### file api
 
@@ -181,7 +188,7 @@ for it.
 
 Create a [readable stream](http://nodejs.org/api/stream.html#stream_class_stream_readable)
 to the file. Pieces needed by the stream will be prioritized highly and fetched from the
-network first.
+swarm first.
 
 You can pass `opts` to stream only a slice of a file.
 
