@@ -16,35 +16,15 @@ portfinder.basePort = Math.floor(Math.random() * 64000) + 1025 // pick port >102
 inherits(Client, EventEmitter)
 
 /**
- * Create a new `bittorrent-client` instance.
- *
- * If `torrentId` is specified, then the client will start with this torrent already
- * added. `torrentId` can be any of the following:
- *
- *   - info hash (as a hex string or Buffer)
- *   - magnet uri (as a utf8 string)
- *   - .torrent file (as a Buffer)
- *
- * @param {string|Buffer} torrentId
+ * Create a new `bittorrent-client` instance. Available options described in the README.
  * @param {Object} opts
  */
-function Client (torrentId, opts) {
+function Client (opts) {
   var self = this
   if (!(self instanceof Client)) return new Client(torrentId, opts)
   EventEmitter.call(self)
 
-  if (typeof torrentId === 'object' && !Buffer.isBuffer(torrentId)) {
-    // options were passed as first argument
-    opts = torrentId
-    torrentId = undefined
-  }
-
   if (!opts) opts = {}
-
-  // Convenience for single torrent use case
-  if (torrentId) {
-    self.add(torrentId)
-  }
 
   // TODO: should these ids be consistent between restarts?
   self.peerId = opts.peerId || new Buffer('-WW0001-' + hat(48), 'utf8')
@@ -137,15 +117,15 @@ Client.prototype.get = function (torrentId) {
  * Add a new torrent to the client. `torrentId` can be any type accepted by the
  * constructor: magnet uri (utf8 string), torrent file (buffer), or info hash (hex
  * string or buffer).
- * @param {string|Buffer} uri   magnet uri, torrent file, or infohash
+ * @param {string|Buffer} torrentId   magnet uri, torrent file, or infohash
  */
-Client.prototype.add = function (uri) {
+Client.prototype.add = function (torrentId) {
   var self = this
   if (!self.ready) {
-    return self.once('ready', self.add.bind(self, uri))
+    return self.once('ready', self.add.bind(self, torrentId))
   }
 
-  var torrent = new Torrent(uri, {
+  var torrent = new Torrent(torrentId, {
     peerId: self.peerId,
     torrentPort: self.torrentPort,
     dhtPort: self.dhtPort

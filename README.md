@@ -22,9 +22,10 @@ urls, the client automatically connects to trackers to discover new peers.
 ```js
 var BitTorrentClient = require('bittorrent-client')
 
+var client = BitTorrentClient()
+
 // "Pride and Prejudice" by Jane Austen
-var magnet = 'magnet:?xt=urn:btih:1e69917fbaa2c767bca463a96b5572785c6d8a12'
-var client = BitTorrentClient(magnet)
+client.add('magnet:?xt=urn:btih:1e69917fbaa2c767bca463a96b5572785c6d8a12')
 
 client.on('torrent', function (torrent) {
   // torrent metadata has been fetched
@@ -81,16 +82,9 @@ client.add(url)
 
 ### client api
 
-#### `client = BitTorrentClient([torrentId], [opts])`
+#### `client = BitTorrentClient([opts])`
 
 Create a new `bittorrent-client` instance.
-
-If `torrentId` is specified, then the client will start with this torrent already added.
-`torrentId` can be any of the following:
-
-- info hash (as a hex string or Buffer)
-- magnet uri (as a utf8 string)
-- .torrent file (as a Buffer)
 
 If `opts` is specified, then the default options (shown below) will be overridden.
 
@@ -113,9 +107,13 @@ methods a `torrent` has.
 
 #### `client.add(torrentId)`
 
-Add a new torrent to the client. `torrentId` can be any type accepted by the constructor:
-magnet uri (utf8 string), torrent file (buffer), or info hash (hex string or buffer).
-`client.add` is called internally when a `torrentId` is passed into the constructor.
+Add a new torrent to the client.
+
+`torrentId` can be any of the following:
+
+- info hash (as a hex string or Buffer)
+- magnet uri (as a utf8 string)
+- .torrent file (as a Buffer)
 
 #### `client.remove(torrentId, [function (err) {}])`
 
