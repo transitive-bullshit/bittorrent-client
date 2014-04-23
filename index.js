@@ -123,7 +123,7 @@ Object.defineProperty(Client.prototype, 'ratio', {
  */
 Client.prototype.get = function (torrentId) {
   var self = this
-  var infoHash = toInfoHash(torrentId)
+  var infoHash = Client.toInfoHash(torrentId)
   for (var i = 0, len = self.torrents.length; i < len; i++) {
     var torrent = self.torrents[i]
     if (torrent.infoHash === infoHash) {
@@ -217,7 +217,7 @@ Client.prototype.destroy = function (cb) {
  * @param  {string|Buffer} torrentId magnet uri, torrent file, or infohash
  * @return {string} info hash (hex string)
  */
-function toInfoHash (torrentId) {
+Client.toInfoHash = function (torrentId) {
   if (typeof torrentId === 'string') {
     if (!/^magnet:/.test(torrentId) && torrentId.length === 40 || torrentId.length === 32) {
       // info hash (hex/base-32 string)
@@ -225,7 +225,7 @@ function toInfoHash (torrentId) {
     }
     // magnet uri
     var info = magnet(torrentId)
-    return info.infoHash
+    return info && info.infoHash
   } else if (Buffer.isBuffer(torrentId)) {
     if (torrentId.length === 20) {
       // info hash (buffer)
@@ -235,7 +235,7 @@ function toInfoHash (torrentId) {
       try {
         return parseTorrent(torrentId).infoHash
       } catch (err) {
-        throw err
+        return null
       }
     }
   }
