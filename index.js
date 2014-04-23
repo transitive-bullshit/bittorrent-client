@@ -21,7 +21,7 @@ inherits(Client, EventEmitter)
  */
 function Client (opts) {
   var self = this
-  if (!(self instanceof Client)) return new Client(torrentId, opts)
+  if (!(self instanceof Client)) return new Client(opts)
   EventEmitter.call(self)
 
   if (!opts) opts = {}

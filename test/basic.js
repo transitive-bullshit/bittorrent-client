@@ -5,8 +5,8 @@ var test = require('tape')
 test('Download "Pride and Prejudice" by Jane Austen', function (t) {
   t.plan(2)
 
-  var magnet = 'magnet:?xt=urn:btih:1e69917fbaa2c767bca463a96b5572785c6d8a12'
-  var client = BitTorrentClient(magnet)
+  var client = BitTorrentClient()
+  client.add('magnet:?xt=urn:btih:1e69917fbaa2c767bca463a96b5572785c6d8a12')
 
   client.on('torrent', function (torrent) {
     // torrent metadata has been fetched
