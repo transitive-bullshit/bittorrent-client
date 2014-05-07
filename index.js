@@ -21,10 +21,12 @@ inherits(Client, EventEmitter)
  */
 function Client (opts) {
   var self = this
-  if (!(self instanceof Client)) return new Client(opts)
+  if (!(self instanceof Client)) {
+    return new Client(opts)
+  }
   EventEmitter.call(self)
 
-  if (!opts) opts = {}
+  opts || opts = {}
 
   // TODO: should these ids be consistent between restarts?
   self.peerId = opts.peerId || new Buffer('-WW0001-' + hat(48), 'utf8')
@@ -64,7 +66,7 @@ function Client (opts) {
       } else {
         portfinder.getPort(cb)
       }
-    }, 
+    },
     trackerPort: function (cb) {
       if (self.trackerPort) {
         cb(null, self.trackerPort)
@@ -193,10 +195,10 @@ Client.prototype.remove = function (torrentId, cb) {
  */
 Client.prototype.destroy = function (cb) {
   var self = this
-  
+
   if (self.dht)
     self.dht.close()
-  
+
   var torrents = self.torrents.slice(0) // clone before iteration
   torrents.forEach(function (torrent) {
     // TODO: chain cb here
