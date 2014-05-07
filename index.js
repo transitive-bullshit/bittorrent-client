@@ -165,8 +165,10 @@ Client.prototype.add = function (torrentId) {
   })
 
   // TODO: fix dht to support calling this multiple times
-  self.dht.setInfoHash(torrent.infoHash)
-  self.dht.findPeers(self.maxDHT)
+  if (self.dht) {
+    self.dht.setInfoHash(torrent.infoHash)
+    self.dht.findPeers(self.maxDHT)
+  }
 }
 
 /**
@@ -191,9 +193,14 @@ Client.prototype.remove = function (torrentId, cb) {
  */
 Client.prototype.destroy = function (cb) {
   var self = this
+  
+  if (self.dht)
+    self.dht.close()
+  
   var torrents = self.torrents.slice(0) // clone before iteration
   torrents.forEach(function (torrent) {
-    self.remove(torrent)
+    // TODO: chain cb here
+    self.remove(torrent.infoHash)
   })
 }
 
