@@ -32,6 +32,7 @@ function Client (opts) {
 
   self.dhtPort = opts.dhtPort
   self.torrentPort = opts.torrentPort
+  self.trackerPort = opts.trackerPort
 
   self.ready = false
   self.maxDHT = opts.maxDHT || 100 // maxiumum number of peers to find through DHT
@@ -63,10 +64,18 @@ function Client (opts) {
       } else {
         portfinder.getPort(cb)
       }
+    }, 
+    trackerPort: function (cb) {
+      if (self.trackerPort) {
+        cb(null, self.trackerPort)
+      } else {
+        portfinder.getPort(cb)
+      }
     }
   }, function (err, r) {
     self.dhtPort = r.dhtPort
     self.torrentPort = r.torrentPort
+    self.trackerPort = r.trackerPort
 
     self.dht.listen(self.dhtPort, function () {
       self.ready = true
@@ -152,7 +161,7 @@ Client.prototype.add = function (torrentId) {
 
   torrent.on('metadata', function () {
     // Emit 'torrent' when a torrent is ready to be used
-    self.emit('torrent', self)
+    self.emit('torrent', torrent)
   })
 
   // TODO: fix dht to support calling this multiple times
