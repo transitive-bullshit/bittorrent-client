@@ -26,7 +26,7 @@ function Client (opts) {
   }
   EventEmitter.call(self)
 
-  opts || opts = {}
+  opts = opts || {}
 
   // TODO: should these ids be consistent between restarts?
   self.peerId = opts.peerId || new Buffer('-WW0001-' + hat(48), 'utf8')
