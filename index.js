@@ -34,7 +34,7 @@ function Client (opts) {
 
   self.dhtPort = opts.dhtPort
   self.torrentPort = opts.torrentPort
-  self.trackerPort = opts.trackerPort
+  self.trackersEnabled = ('trackersEnabled' in opts ? opts.trackersEnabled : true)
 
   self.ready = false
   self.maxDHT = opts.maxDHT || 100 // maxiumum number of peers to find through DHT
@@ -42,6 +42,16 @@ function Client (opts) {
   this.downloadSpeed = speedometer()
   this.uploadSpeed = speedometer()
 
+  var asyncInit = {
+    torrentPort: function (cb) {
+      if (self.torrentPort) {
+        cb(null, self.torrentPort)
+      } else {
+        portfinder.getPort(cb)
+      }
+    }
+  }
+  
   if (opts.maxDHT !== 0) {
     self.dht = new DHT({ nodeId: self.nodeId })
 
@@ -49,40 +59,31 @@ function Client (opts) {
       var torrent = self.get(infoHash)
       torrent.addPeer(addr)
     })
-  }
-
-  auto({
-    dhtPort: function (cb) {
+    
+    asyncInit.dhtPort = function (cb) {
       // TODO: DHT port should be consistent between restarts
       if (self.dhtPort) {
         cb(null, self.dhtPort)
       } else {
         portfinder.getPort(cb)
       }
-    },
-    torrentPort: function (cb) {
-      if (self.torrentPort) {
-        cb(null, self.torrentPort)
-      } else {
-        portfinder.getPort(cb)
-      }
-    },
-    trackerPort: function (cb) {
-      if (self.trackerPort) {
-        cb(null, self.trackerPort)
-      } else {
-        portfinder.getPort(cb)
-      }
     }
-  }, function (err, r) {
+  }
+
+  var ready = function () {
+    self.ready = true
+    self.emit('ready')
+  }
+  
+  auto(asyncInit, function (err, r) {
     self.dhtPort = r.dhtPort
     self.torrentPort = r.torrentPort
-    self.trackerPort = r.trackerPort
 
-    self.dht.listen(self.dhtPort, function () {
-      self.ready = true
-      self.emit('ready')
-    })
+    if (self.dht) {
+      self.dht.listen(self.dhtPort, ready)
+    } else {
+      ready()
+    }
   })
 }
 
@@ -139,7 +140,8 @@ Client.prototype.add = function (torrentId) {
   var torrent = new Torrent(torrentId, {
     peerId: self.peerId,
     torrentPort: self.torrentPort,
-    dhtPort: self.dhtPort
+    dhtPort: self.dhtPort,
+    trackersEnabled: self.trackersEnabled
   })
   self.torrents.push(torrent)
 
@@ -154,7 +156,9 @@ Client.prototype.add = function (torrentId) {
 
   torrent.on('listening', function (port) {
     console.log('Swarm listening on port ' + port)
-    // TODO: Add the torrent to the public DHT so peers know to find up
+    
+    self.emit('listening', torrent)
+    // TODO: Add the torrent to the public DHT so peers know to find us
   })
 
   torrent.on('error', function (err) {
@@ -166,8 +170,8 @@ Client.prototype.add = function (torrentId) {
     self.emit('torrent', torrent)
   })
 
-  // TODO: fix dht to support calling this multiple times
   if (self.dht) {
+    // TODO: fix dht to support calling this multiple times
     self.dht.setInfoHash(torrent.infoHash)
     self.dht.findPeers(self.maxDHT)
   }
