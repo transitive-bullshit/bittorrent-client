@@ -15,6 +15,7 @@
     "bittorrent-dht": "^0.7.2",
     "bittorrent-swarm": "^0.10.0",
     "bittorrent-tracker": "^0.5.1",
+    "underscore": "^1.6.0",
     "hat": "0.0.3",
     "inherits": "^2.0.1",
     "magnet-uri": "^2.0.1",
