@@ -130,10 +130,10 @@ Client.prototype.get = function (torrentId) {
  * string or buffer).
  * @param {string|Buffer} torrentId   magnet uri, torrent file, or infohash
  */
-Client.prototype.add = function (torrentId) {
+Client.prototype.add = function (torrentId, cb) {
   var self = this
   if (!self.ready) {
-    return self.once('ready', self.add.bind(self, torrentId))
+    return self.once('ready', self.add.bind(self, torrentId, cb))
   }
 
   var torrent = new Torrent(torrentId, {
@@ -162,6 +162,8 @@ Client.prototype.add = function (torrentId) {
   })
 
   torrent.on('metadata', function () {
+    // Fire cb when torrent is ready to be used
+    if (typeof cb === 'function') cb.call(self, torrent)
     // Emit 'torrent' when a torrent is ready to be used
     self.emit('torrent', torrent)
   })
