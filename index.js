@@ -136,7 +136,7 @@ Client.prototype.add = function (torrentId, cb) {
   if (!self.ready) {
     return self.once('ready', self.add.bind(self, torrentId, cb))
   }
-  if (!cb) cb = function () {}
+  if (typeof cb !== 'function') cb = function () {}
 
   var torrent = new Torrent(torrentId, {
     peerId: self.peerId,
