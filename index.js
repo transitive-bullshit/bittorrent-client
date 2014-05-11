@@ -109,7 +109,7 @@ Object.defineProperty(Client.prototype, 'ratio', {
 /**
  * Return the torrent with the given `torrentId`. Easier than searching through the
  * `client.torrents` array by hand for the torrent you want.
- * @param  {string|Buffer} infoHash
+ * @param  {string|Buffer} torrentId
  * @return {Torrent}
  */
 Client.prototype.get = function (torrentId) {
