@@ -105,7 +105,7 @@ If `opts` is specified, then the default options (shown below) will be overridde
 Emitted when a torrent is ready to be used. See the torrent section for more info on what
 methods a `torrent` has.
 
-#### `client.add(torrentId, [function callback (torrent) {}])`
+#### `client.add(torrentId, [function listener (torrent) {}])`
 
 Add a new torrent to the client.
 
@@ -115,7 +115,7 @@ Add a new torrent to the client.
 - magnet uri (as a utf8 string)
 - .torrent file (as a Buffer)
 
-Optional `callback` is called when the torrent is ready to be used.
+Optional `listener` argument will be added as a listener for the 'torrent' event.
 
 #### `client.remove(torrentId, [function callback (err) {}])`
 
