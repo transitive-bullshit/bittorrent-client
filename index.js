@@ -37,7 +37,7 @@ function Client (opts) {
   self.trackersEnabled = ('trackersEnabled' in opts ? opts.trackersEnabled : true)
 
   self.ready = false
-  self.maxDHT = opts.maxDHT || 100 // maxiumum number of peers to find through DHT
+  self.maxDHT = opts.maxDHT || 100 // maximum number of peers to find through DHT
   self.torrents = []
   this.downloadSpeed = speedometer()
   this.uploadSpeed = speedometer()
