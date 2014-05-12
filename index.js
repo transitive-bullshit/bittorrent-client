@@ -42,6 +42,8 @@ function Client (opts) {
   this.downloadSpeed = speedometer()
   this.uploadSpeed = speedometer()
 
+  self.log = opts.quiet ? function () {} : console.log
+
   var tasks = {
     torrentPort: function (cb) {
       if (self.torrentPort) {
@@ -130,7 +132,7 @@ Client.prototype.get = function (torrentId) {
  * constructor: magnet uri (utf8 string), torrent file (buffer), or info hash (hex
  * string or buffer).
  * @param {string|Buffer} torrentId magnet uri, torrent file, or infohash
- * @param {function=} cb called when this torrent is ready to use
+ * @param {function=} cb called with the torrent that was created (might not have metadata yet)
  */
 Client.prototype.add = function (torrentId, cb) {
   var self = this
@@ -157,7 +159,7 @@ Client.prototype.add = function (torrentId, cb) {
   self.emit('addTorrent', torrent)
 
   torrent.on('listening', function (port) {
-    console.log('Swarm listening on port ' + port)
+    self.log('Swarm listening on port ' + port)
     self.emit('listening', torrent)
     // TODO: Add the torrent to the public DHT so peers know to find us
   })
@@ -167,8 +169,7 @@ Client.prototype.add = function (torrentId, cb) {
   })
 
   torrent.on('metadata', function () {
-    // Call callback and emit 'torrent' when a torrent is ready to be used
-    cb(torrent)
+    // emit 'torrent' when a torrent is ready to be used
     self.emit('torrent', torrent)
   })
 
@@ -178,6 +179,11 @@ Client.prototype.add = function (torrentId, cb) {
     self.dht.findPeers(self.maxDHT)
   }
 
+  // users can listen for 'torrent' event if they want to wait until a torrent 
+  // is ready to be used. the callback will happen as soon as the client is 
+  // ready and we've created it.
+  cb(null, torrent)
+  
   return self
 }
 
