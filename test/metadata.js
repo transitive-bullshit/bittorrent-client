@@ -9,7 +9,7 @@ var leaves = fs.readFileSync(__dirname + '/torrents/leaves.torrent')
 var leavesTorrent = parseTorrent(leaves)
 
 test('ut_metadata transfer between local torrents', function (t) {
-  t.plan(5)
+  t.plan(3)
 
   var clientA = new BitTorrentClient({ maxDHT: 0, trackersEnabled: false }) // disable DHT and trackers
   var clientB = new BitTorrentClient({ maxDHT: 0, trackersEnabled: false }) // disable DHT and trackers
@@ -28,16 +28,15 @@ test('ut_metadata transfer between local torrents', function (t) {
   clientB.on('error', function (err) { t.error(err) })
 
   clientA.on('listening', function (torrentA) {
+    t.deepEqual(torrentA.parsedTorrent.info, leavesTorrent.info)
+
     clientB.on('listening', function (torrentB) {
       // add each other as sole peers
       clientB.get(leavesTorrent.infoHash).addPeer('localhost:' + clientA.torrentPort)
       clientA.get(leavesTorrent.infoHash).addPeer('localhost:' + clientB.torrentPort)
 
       clientB.on('torrent', function () {
-        t.equal(torrentA.parsedTorrent.name, torrentB.parsedTorrent.name)
-        t.equal(torrentA.parsedTorrent.length, torrentB.parsedTorrent.length)
-        t.equal(torrentA.parsedTorrent.lastPieceLength, torrentB.parsedTorrent.lastPieceLength)
-        t.equal(torrentA.parsedTorrent.pieces.length, torrentB.parsedTorrent.pieces.length)
+        t.deepEqual(torrentA.parsedTorrent.info, torrentB.parsedTorrent.info)
 
         clientA.destroy()
         clientB.destroy()
