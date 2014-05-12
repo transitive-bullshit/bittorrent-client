@@ -178,6 +178,8 @@ Client.prototype.add = function (torrentId, cb) {
     self.dht.setInfoHash(torrent.infoHash)
     self.dht.findPeers(self.maxDHT)
   }
+
+  return self
 }
 
 /**
@@ -194,6 +196,8 @@ Client.prototype.remove = function (torrentId, cb) {
   }
   self.torrents.splice(self.torrents.indexOf(torrent), 1)
   torrent.destroy(cb)
+
+  return self
 }
 
 /**
@@ -211,6 +215,8 @@ Client.prototype.destroy = function (cb) {
     // TODO: chain cb here
     self.remove(torrent.infoHash)
   })
+
+  return self
 }
 
 //
