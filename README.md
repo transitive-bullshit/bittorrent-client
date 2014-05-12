@@ -61,8 +61,7 @@ This will improve the download speed, conserve system resources, and allow inter
 // Sintel movie in 4K
 var magnet = 'magnet:?xt=urn:btih:489a21c45f7eb13ad75b3b9bfa0132b1be035f62'
 
-client.add(magnet)
-client.on('torrent', function (torrent) {
+client.add(magnet, function (torrent) {
   // torrent metadata has been fetched
   console.log(torrent.name)
 })
@@ -102,10 +101,10 @@ If `opts` is specified, then the default options (shown below) will be overridde
 
 #### `client.on('torrent', function (torrent) {})`
 
-Emitted when a torrent is ready to be used. See the torrent section for more info on what
-methods a `torrent` has.
+Emitted when a torrent is ready to be used (i.e. metadata is available). See the torrent
+section for more info on what methods a `torrent` has.
 
-#### `client.add(torrentId)`
+#### `client.add(torrentId, [function callback (torrent) {}])`
 
 Add a new torrent to the client.
 
@@ -115,10 +114,13 @@ Add a new torrent to the client.
 - magnet uri (as a utf8 string)
 - .torrent file (as a Buffer)
 
-#### `client.remove(torrentId, [function (err) {}])`
+Optional `callback` is called when this torrent is ready to be used (i.e. metadata is
+available).
+
+#### `client.remove(torrentId, [function callback (err) {}])`
 
 Remove a torrent from the client. Destroy all connections to peers and delete all saved
-file data. Optional callback is called when file data has been removed.
+file data. Optional `callback` is called when file data has been removed.
 
 #### `client.destroy()`
 

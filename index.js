@@ -42,7 +42,7 @@ function Client (opts) {
   this.downloadSpeed = speedometer()
   this.uploadSpeed = speedometer()
 
-  var asyncInit = {
+  var tasks = {
     torrentPort: function (cb) {
       if (self.torrentPort) {
         cb(null, self.torrentPort)
@@ -51,7 +51,7 @@ function Client (opts) {
       }
     }
   }
-  
+
   if (opts.maxDHT !== 0) {
     self.dht = new DHT({ nodeId: self.nodeId })
 
@@ -59,8 +59,8 @@ function Client (opts) {
       var torrent = self.get(infoHash)
       torrent.addPeer(addr)
     })
-    
-    asyncInit.dhtPort = function (cb) {
+
+    tasks.dhtPort = function (cb) {
       // TODO: DHT port should be consistent between restarts
       if (self.dhtPort) {
         cb(null, self.dhtPort)
@@ -74,8 +74,8 @@ function Client (opts) {
     self.ready = true
     self.emit('ready')
   }
-  
-  auto(asyncInit, function (err, r) {
+
+  auto(tasks, function (err, r) {
     self.dhtPort = r.dhtPort
     self.torrentPort = r.torrentPort
 
@@ -110,7 +110,7 @@ Object.defineProperty(Client.prototype, 'ratio', {
 /**
  * Return the torrent with the given `torrentId`. Easier than searching through the
  * `client.torrents` array by hand for the torrent you want.
- * @param  {string|Buffer} infoHash
+ * @param  {string|Buffer} torrentId
  * @return {Torrent}
  */
 Client.prototype.get = function (torrentId) {
@@ -129,13 +129,15 @@ Client.prototype.get = function (torrentId) {
  * Add a new torrent to the client. `torrentId` can be any type accepted by the
  * constructor: magnet uri (utf8 string), torrent file (buffer), or info hash (hex
  * string or buffer).
- * @param {string|Buffer} torrentId   magnet uri, torrent file, or infohash
+ * @param {string|Buffer} torrentId magnet uri, torrent file, or infohash
+ * @param {function=} cb called when this torrent is ready to use
  */
-Client.prototype.add = function (torrentId) {
+Client.prototype.add = function (torrentId, cb) {
   var self = this
   if (!self.ready) {
-    return self.once('ready', self.add.bind(self, torrentId))
+    return self.once('ready', self.add.bind(self, torrentId, cb))
   }
+  if (typeof cb !== 'function') cb = function () {}
 
   var torrent = new Torrent(torrentId, {
     peerId: self.peerId,
@@ -156,7 +158,6 @@ Client.prototype.add = function (torrentId) {
 
   torrent.on('listening', function (port) {
     console.log('Swarm listening on port ' + port)
-    
     self.emit('listening', torrent)
     // TODO: Add the torrent to the public DHT so peers know to find us
   })
@@ -166,7 +167,8 @@ Client.prototype.add = function (torrentId) {
   })
 
   torrent.on('metadata', function () {
-    // Emit 'torrent' when a torrent is ready to be used
+    // Call callback and emit 'torrent' when a torrent is ready to be used
+    cb(torrent)
     self.emit('torrent', torrent)
   })
 
@@ -175,6 +177,8 @@ Client.prototype.add = function (torrentId) {
     self.dht.setInfoHash(torrent.infoHash)
     self.dht.findPeers(self.maxDHT)
   }
+
+  return self
 }
 
 /**
@@ -191,6 +195,8 @@ Client.prototype.remove = function (torrentId, cb) {
   }
   self.torrents.splice(self.torrents.indexOf(torrent), 1)
   torrent.destroy(cb)
+
+  return self
 }
 
 /**
@@ -208,6 +214,8 @@ Client.prototype.destroy = function (cb) {
     // TODO: chain cb here
     self.remove(torrent.infoHash)
   })
+
+  return self
 }
 
 //

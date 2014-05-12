@@ -1,7 +1,7 @@
 {
   "name": "bittorrent-client",
   "description": "Simple, robust, streaming bittorrent client.",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "author": {
     "name": "Feross Aboukhadijeh",
     "email": "feross@feross.org",
@@ -24,7 +24,7 @@
     "run-auto": "^1.0.0",
     "rusha-browserify": "^0.7.3",
     "speedometer": "^0.1.2",
-    "ut_metadata": "^1.3.0"
+    "ut_metadata": "^2.0.1"
   },
   "devDependencies": {
     "tape": "^2.12.3"
