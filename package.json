@@ -1,7 +1,7 @@
 {
   "name": "bittorrent-client",
   "description": "Simple, robust, streaming bittorrent client.",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": {
     "name": "Feross Aboukhadijeh",
     "email": "feross@feross.org",
@@ -13,8 +13,8 @@
   "dependencies": {
     "bitfield": "^1.0.1",
     "bittorrent-dht": "^0.7.2",
-    "bittorrent-swarm": "^0.10.0",
-    "bittorrent-tracker": "^0.5.1",
+    "bittorrent-swarm": "^0.11.1",
+    "bittorrent-tracker": "^0.6.0",
     "underscore": "^1.6.0",
     "hat": "0.0.3",
     "inherits": "^2.0.1",
