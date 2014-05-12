@@ -42,9 +42,9 @@ torrents.forEach(function (torrent) {
       t.notOk(file.done)
       length += file.length
       pieces += file.pieces.length
-      
-      t.assert(file.length > 0)
-      t.assert(file.pieces.length > 0)
+
+      t.assert(file.length >= 0)
+      t.assert(file.pieces.length >= 0)
     })
     
     t.equal(length, parsedTorrent.length)
