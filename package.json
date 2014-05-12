@@ -24,7 +24,8 @@
     "run-auto": "^1.0.0",
     "rusha-browserify": "^0.7.3",
     "speedometer": "^0.1.2",
-    "ut_metadata": "^2.0.1"
+    "ut_metadata": "^2.0.1",
+    "extend.js": "^0.0.1"
   },
   "devDependencies": {
     "tape": "^2.12.3"

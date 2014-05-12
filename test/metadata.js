@@ -11,8 +11,8 @@ var leavesTorrent = parseTorrent(leaves)
 test('ut_metadata transfer between local torrents', function (t) {
   t.plan(3)
 
-  var clientA = new BitTorrentClient({ maxDHT: 0, trackersEnabled: false }) // disable DHT and trackers
-  var clientB = new BitTorrentClient({ maxDHT: 0, trackersEnabled: false }) // disable DHT and trackers
+  var clientA = new BitTorrentClient({ dht: false, trackers: false }) // disable DHT and trackers
+  var clientB = new BitTorrentClient({ dht: false, trackers: false }) // disable DHT and trackers
 
   clientA.on('torrent', function (torrent) {
     t.pass('clientA must still emit torrent event')

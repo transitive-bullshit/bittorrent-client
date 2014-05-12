@@ -94,7 +94,8 @@ If `opts` is specified, then the default options (shown below) will be overridde
   path: '/tmp/some-name', // Where to save the torrent file data
   peerId: '',             // Wire protocol peer ID (otherwise, randomly generated)
   nodeId: '',             // DHT protocol node ID (otherwise, randomly generated)
-  tracker: true,          // Whether or not to use a tracker
+  trackers: true,         // Whether or not to enable trackers
+  dht: true,              // Whether or not to enable DHT
   verify: true            // Verify previously stored data before starting
 }
 ```

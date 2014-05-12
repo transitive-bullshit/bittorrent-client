@@ -1,6 +1,7 @@
 module.exports = Client
 
 var auto = require('run-auto')
+var extend = require('extend.js')
 var DHT = require('bittorrent-dht')
 var EventEmitter = require('events').EventEmitter
 var hat = require('hat')
@@ -26,7 +27,11 @@ function Client (opts) {
   }
   EventEmitter.call(self)
 
-  opts = opts || {}
+  opts = extend({
+    dht: true,
+    maxDHT: 100,
+    trackers: true
+  }, opts)
 
   // TODO: should these ids be consistent between restarts?
   self.peerId = opts.peerId || new Buffer('-WW0001-' + hat(48), 'utf8')
@@ -34,10 +39,11 @@ function Client (opts) {
 
   self.dhtPort = opts.dhtPort
   self.torrentPort = opts.torrentPort
-  self.trackersEnabled = ('trackersEnabled' in opts ? opts.trackersEnabled : true)
+  self.trackersEnabled = ('trackers' in opts ? opts.trackers : true)
+
+  self.maxDHT = opts.maxDHT // maximum number of peers to find through DHT
 
   self.ready = false
-  self.maxDHT = opts.maxDHT || 100 // maximum number of peers to find through DHT
   self.torrents = []
   this.downloadSpeed = speedometer()
   this.uploadSpeed = speedometer()
@@ -54,7 +60,7 @@ function Client (opts) {
     }
   }
 
-  if (opts.maxDHT !== 0) {
+  if (opts.dht && opts.maxDHT > 0) {
     self.dht = new DHT({ nodeId: self.nodeId })
 
     self.dht.on('peer', function (addr, infoHash) {
@@ -145,7 +151,8 @@ Client.prototype.add = function (torrentId, cb) {
     peerId: self.peerId,
     torrentPort: self.torrentPort,
     dhtPort: self.dhtPort,
-    trackersEnabled: self.trackersEnabled
+    trackers: self.trackersEnabled,
+    dht: !!self.dht
   })
   self.torrents.push(torrent)
 
