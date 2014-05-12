@@ -42,7 +42,7 @@ function Client (opts) {
   this.downloadSpeed = speedometer()
   this.uploadSpeed = speedometer()
 
-  var asyncInit = {
+  var tasks = {
     torrentPort: function (cb) {
       if (self.torrentPort) {
         cb(null, self.torrentPort)
@@ -51,7 +51,7 @@ function Client (opts) {
       }
     }
   }
-  
+
   if (opts.maxDHT !== 0) {
     self.dht = new DHT({ nodeId: self.nodeId })
 
@@ -59,8 +59,8 @@ function Client (opts) {
       var torrent = self.get(infoHash)
       torrent.addPeer(addr)
     })
-    
-    asyncInit.dhtPort = function (cb) {
+
+    tasks.dhtPort = function (cb) {
       // TODO: DHT port should be consistent between restarts
       if (self.dhtPort) {
         cb(null, self.dhtPort)
@@ -74,8 +74,8 @@ function Client (opts) {
     self.ready = true
     self.emit('ready')
   }
-  
-  auto(asyncInit, function (err, r) {
+
+  auto(tasks, function (err, r) {
     self.dhtPort = r.dhtPort
     self.torrentPort = r.torrentPort
 
@@ -158,7 +158,7 @@ Client.prototype.add = function (torrentId, cb) {
 
   torrent.on('listening', function (port) {
     console.log('Swarm listening on port ' + port)
-    
+
     self.emit('listening', torrent)
     // TODO: Add the torrent to the public DHT so peers know to find us
   })
