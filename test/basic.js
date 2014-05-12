@@ -40,11 +40,11 @@ test('Download "Pride and Prejudice" by Jane Austen', function (t) {
 // TODO: replace this with a test that can run offline
 test('Download "Leaves of Grass" by Walt Whitman', function (t) {
   t.plan(3)
-  
+
   var client = new BitTorrentClient()
-  
+
   client.add(leavesTorrent.infoHash)
-  
+
   client.on('error', function (err) { t.error(err) })
 
   client.on('torrent', function (torrent) {
@@ -56,15 +56,14 @@ test('Download "Leaves of Grass" by Walt Whitman', function (t) {
 
     torrent.files.forEach(function (file, index) {
       t.equal(file.name, names[index])
-      
+
       // get a readable stream of the file content
       var stream = file.createReadStream()
     })
-    
+
     torrent.once('done', function () {
       t.pass('torrent downloaded successfully!')
       client.destroy()
     })
   })
 })
-

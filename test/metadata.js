@@ -10,17 +10,17 @@ var leavesTorrent = parseTorrent(leaves)
 
 test('ut_metadata transfer between local torrents', function (t) {
   t.plan(5)
-  
+
   var clientA = new BitTorrentClient({ maxDHT: 0, trackersEnabled: false }) // disable DHT and trackers
   var clientB = new BitTorrentClient({ maxDHT: 0, trackersEnabled: false }) // disable DHT and trackers
-  
+
   clientA.on('torrent', function (torrent) {
-    t.pass("clientA must still emit torrent event")
+    t.pass('clientA must still emit torrent event')
   })
-  
+
   // clientA starts with metadata from torrent file
   clientA.add(leaves)
-  
+
   // clientB starts with infohash
   clientB.add(leavesTorrent.infoHash)
 
@@ -32,17 +32,16 @@ test('ut_metadata transfer between local torrents', function (t) {
       // add each other as sole peers
       clientB.get(leavesTorrent.infoHash).addPeer('localhost:' + clientA.torrentPort)
       clientA.get(leavesTorrent.infoHash).addPeer('localhost:' + clientB.torrentPort)
-      
+
       clientB.on('torrent', function () {
         t.equal(torrentA.parsedTorrent.name, torrentB.parsedTorrent.name)
         t.equal(torrentA.parsedTorrent.length, torrentB.parsedTorrent.length)
         t.equal(torrentA.parsedTorrent.lastPieceLength, torrentB.parsedTorrent.lastPieceLength)
         t.equal(torrentA.parsedTorrent.pieces.length, torrentB.parsedTorrent.pieces.length)
-        
+
         clientA.destroy()
         clientB.destroy()
       })
     })
   })
 })
-
