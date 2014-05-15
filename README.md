@@ -160,6 +160,25 @@ The attached [bittorrent-swarm](https://github.com/feross/bittorrent-swarm) inst
 
 Alias for `client.remove(torrent)`.
 
+#### `torrent.addPeer(addr)`
+
+Adds a peer to the underlying [bittorrent-swarm](https://github.com/feross/bittorrent-swarm) instance.
+
+#### `torrent.select(start, end, priority, notify)`
+
+Selects a range of pieces to prioritize starting with `start` and ending with `end` (both inclusive)
+at the given `priority`. `notify` is an optional callback to be called when the selection is updated 
+with new data.
+
+#### `torrent.deselect(start, end, priority)`
+
+Deprioritizes a range of previously selected pieces.
+
+#### `torrent.critical(start, end)`
+
+Marks a range of pieces as critical priority to be downloaded ASAP. From `start` to `end` 
+(both inclusive).
+
 
 ### file api
 
