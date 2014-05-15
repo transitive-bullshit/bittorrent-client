@@ -29,7 +29,7 @@ function Client (opts) {
 
   opts = extend({
     dht: true,
-    maxDHT: 100,
+    maxDHT: 1000,
     trackers: true
   }, opts)
 
@@ -152,7 +152,8 @@ Client.prototype.add = function (torrentId, cb) {
     torrentPort: self.torrentPort,
     dhtPort: self.dhtPort,
     trackers: self.trackersEnabled,
-    dht: !!self.dht
+    dht: !!self.dht,
+    log: self.log
   })
   self.torrents.push(torrent)
 
@@ -186,11 +187,11 @@ Client.prototype.add = function (torrentId, cb) {
     self.dht.findPeers(self.maxDHT)
   }
 
-  // users can listen for 'torrent' event if they want to wait until a torrent 
-  // is ready to be used. the callback will happen as soon as the client is 
+  // users can listen for 'torrent' event if they want to wait until a torrent
+  // is ready to be used. the callback will happen as soon as the client is
   // ready and we've created it.
   cb(null, torrent)
-  
+
   return self
 }
 
