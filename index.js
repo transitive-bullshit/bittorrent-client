@@ -137,24 +137,30 @@ Client.prototype.get = function (torrentId) {
  * Add a new torrent to the client. `torrentId` can be any type accepted by the
  * constructor: magnet uri (utf8 string), torrent file (buffer), or info hash (hex
  * string or buffer).
+ *
  * @param {string|Buffer} torrentId magnet uri, torrent file, or infohash
- * @param {function=} cb called with the torrent that was created (might not have metadata yet)
+ * @param {Object}        opts      optional torrent-specific options
+ * @param {function=}     cb        called with the torrent that was created (might not have metadata yet)
  */
-Client.prototype.add = function (torrentId, cb) {
+Client.prototype.add = function (torrentId, opts, cb) {
   var self = this
   if (!self.ready) {
-    return self.once('ready', self.add.bind(self, torrentId, cb))
+    return self.once('ready', self.add.bind(self, torrentId, opts, cb))
+  }
+  if (typeof opts === 'function') {
+    cb = opts
+    opts = {}
   }
   if (typeof cb !== 'function') cb = function () {}
 
-  var torrent = new Torrent(torrentId, {
+  var torrent = new Torrent(torrentId, extend({
     peerId: self.peerId,
     torrentPort: self.torrentPort,
     dhtPort: self.dhtPort,
     trackers: self.trackersEnabled,
     dht: !!self.dht,
     log: self.log
-  })
+  }, opts))
   self.torrents.push(torrent)
 
   torrent.swarm.on('download', function (downloaded) {
