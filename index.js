@@ -23,15 +23,14 @@ inherits(Client, EventEmitter)
  */
 function Client (opts) {
   var self = this
-  if (!(self instanceof Client)) {
-    return new Client(opts)
-  }
+  if (!(self instanceof Client)) return new Client(opts)
   EventEmitter.call(self)
 
   opts = extend({
     dht: true,
     maxDHT: 1000,
-    trackers: true
+    trackers: true,
+    blocklist: []
   }, opts)
 
   // TODO: should these ids be consistent between restarts?
@@ -46,8 +45,9 @@ function Client (opts) {
 
   self.ready = false
   self.torrents = []
-  this.downloadSpeed = speedometer()
-  this.uploadSpeed = speedometer()
+  self.blocklist = opts.blocklist
+  self.downloadSpeed = speedometer()
+  self.uploadSpeed = speedometer()
 
   self.log = opts.quiet ? function () {} : console.log
 
@@ -162,7 +162,8 @@ Client.prototype.add = function (torrentId, opts, cb) {
     dhtPort: self.dhtPort,
     trackers: self.trackersEnabled,
     dht: !!self.dht,
-    log: self.log
+    log: self.log,
+    blocklist: self.blocklist
   }, opts))
   self.torrents.push(torrent)
 
