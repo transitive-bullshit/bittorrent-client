@@ -11,6 +11,7 @@ var parseTorrent = require('parse-torrent')
 var portfinder = require('portfinder')
 var speedometer = require('speedometer')
 var Torrent = require('./lib/torrent')
+var Storage = require('./lib/storage')
 
 portfinder.basePort = Math.floor(Math.random() * 64000) + 1025 // pick port >1024
 
@@ -94,6 +95,8 @@ function Client (opts) {
     }
   })
 }
+
+Client.Storage = Storage
 
 /**
  * Aggregate seed ratio for all torrents in the client.
