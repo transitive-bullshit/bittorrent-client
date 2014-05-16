@@ -105,7 +105,7 @@ If `opts` is specified, then the default options (shown below) will be overridde
 Emitted when a torrent is ready to be used (i.e. metadata is available). See the torrent
 section for more info on what methods a `torrent` has.
 
-#### `client.add(torrentId, [function callback (torrent) {}])`
+#### `client.add(torrentId, [opts], [function callback (torrent) {}])`
 
 Add a new torrent to the client.
 
@@ -115,8 +115,9 @@ Add a new torrent to the client.
 - magnet uri (as a utf8 string)
 - .torrent file (as a Buffer)
 
-Optional `callback` is called when this torrent is ready to be used (i.e. metadata is
-available).
+Optional `callback` is called when this torrent has been created. Note that the torrent 
+may not have downloaded metadata yet when the callback is called. To wait for a torrent 
+that is fully ready with metadata, files, etc., listen for the `torrent` event.
 
 #### `client.remove(torrentId, [function callback (err) {}])`
 
@@ -164,7 +165,7 @@ Alias for `client.remove(torrent)`.
 
 Adds a peer to the underlying [bittorrent-swarm](https://github.com/feross/bittorrent-swarm) instance.
 
-#### `torrent.select(start, end, priority, notify)`
+#### `torrent.select(start, end, priority, [notify])`
 
 Selects a range of pieces to prioritize starting with `start` and ending with `end` (both inclusive)
 at the given `priority`. `notify` is an optional callback to be called when the selection is updated 
