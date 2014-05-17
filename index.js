@@ -40,8 +40,8 @@ function Client (opts) {
 
   self.dhtPort = opts.dhtPort
   self.torrentPort = opts.torrentPort
-  self.trackersEnabled = ('trackers' in opts ? opts.trackers : true)
 
+  self.trackersEnabled = opts.trackers
   self.maxDHT = opts.maxDHT // maximum number of peers to find through DHT
 
   self.ready = false
