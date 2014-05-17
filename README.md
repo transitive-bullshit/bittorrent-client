@@ -61,9 +61,11 @@ This will improve the download speed, conserve system resources, and allow inter
 // Sintel movie in 4K
 var magnet = 'magnet:?xt=urn:btih:489a21c45f7eb13ad75b3b9bfa0132b1be035f62'
 
-client.add(magnet, function (torrent) {
-  // torrent metadata has been fetched
-  console.log(torrent.name)
+client.add(magnet, function (err, torrent) {
+  if (!err) {
+    // torrent metadata has been fetched
+    console.log(torrent.name)
+  }
 })
 ```
 
@@ -105,7 +107,7 @@ If `opts` is specified, then the default options (shown below) will be overridde
 Emitted when a torrent is ready to be used (i.e. metadata is available). See the torrent
 section for more info on what methods a `torrent` has.
 
-#### `client.add(torrentId, [opts], [function callback (torrent) {}])`
+#### `client.add(torrentId, [opts], [function callback (err, torrent) {}])`
 
 Add a new torrent to the client.
 
@@ -115,8 +117,8 @@ Add a new torrent to the client.
 - magnet uri (as a utf8 string)
 - .torrent file (as a Buffer)
 
-Optional `callback` is called when this torrent has been created. Note that the torrent 
-may not have downloaded metadata yet when the callback is called. To wait for a torrent 
+Optional `callback` is called when this torrent has been created. Note that the torrent
+may not have downloaded metadata yet when the callback is called. To wait for a torrent
 that is fully ready with metadata, files, etc., listen for the `torrent` event.
 
 #### `client.remove(torrentId, [function callback (err) {}])`
@@ -168,7 +170,7 @@ Adds a peer to the underlying [bittorrent-swarm](https://github.com/feross/bitto
 #### `torrent.select(start, end, priority, [notify])`
 
 Selects a range of pieces to prioritize starting with `start` and ending with `end` (both inclusive)
-at the given `priority`. `notify` is an optional callback to be called when the selection is updated 
+at the given `priority`. `notify` is an optional callback to be called when the selection is updated
 with new data.
 
 #### `torrent.deselect(start, end, priority)`
@@ -177,7 +179,7 @@ Deprioritizes a range of previously selected pieces.
 
 #### `torrent.critical(start, end)`
 
-Marks a range of pieces as critical priority to be downloaded ASAP. From `start` to `end` 
+Marks a range of pieces as critical priority to be downloaded ASAP. From `start` to `end`
 (both inclusive).
 
 

@@ -7,6 +7,7 @@ var EventEmitter = require('events').EventEmitter
 var hat = require('hat')
 var inherits = require('inherits')
 var magnet = require('magnet-uri')
+var once = require('once')
 var parseTorrent = require('parse-torrent')
 var portfinder = require('portfinder')
 var speedometer = require('speedometer')
@@ -155,6 +156,7 @@ Client.prototype.add = function (torrentId, opts, cb) {
     opts = {}
   }
   if (typeof cb !== 'function') cb = function () {}
+  cb = once(cb)
 
   var torrent = new Torrent(torrentId, extend({
     peerId: self.peerId,
@@ -183,11 +185,13 @@ Client.prototype.add = function (torrentId, opts, cb) {
   })
 
   torrent.on('error', function (err) {
+    cb(err)
     self.emit('error', err)
   })
 
   torrent.on('metadata', function () {
-    // emit 'torrent' when a torrent is ready to be used
+    // Call callback and emit 'torrent' when a torrent is ready to be used
+    cb(null, torrent)
     self.emit('torrent', torrent)
   })
 
@@ -197,12 +201,7 @@ Client.prototype.add = function (torrentId, opts, cb) {
     self.dht.findPeers(self.maxDHT)
   }
 
-  // users can listen for 'torrent' event if they want to wait until a torrent
-  // is ready to be used. the callback will happen as soon as the client is
-  // ready and we've created it.
-  cb(null, torrent)
-
-  return self
+  return torrent
 }
 
 /**
@@ -219,8 +218,6 @@ Client.prototype.remove = function (torrentId, cb) {
   }
   self.torrents.splice(self.torrents.indexOf(torrent), 1)
   torrent.destroy(cb)
-
-  return self
 }
 
 /**
@@ -238,8 +235,6 @@ Client.prototype.destroy = function (cb) {
     // TODO: chain cb here
     self.remove(torrent.infoHash)
   })
-
-  return self
 }
 
 //
