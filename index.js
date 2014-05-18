@@ -159,13 +159,13 @@ Client.prototype.add = function (torrentId, opts, cb) {
   cb = once(cb)
 
   var torrent = new Torrent(torrentId, extend({
+    blocklist: self.blocklist,
+    dht: !!self.dht,
+    dhtPort: self.dhtPort,
+    log: self.log,
     peerId: self.peerId,
     torrentPort: self.torrentPort,
-    dhtPort: self.dhtPort,
-    trackers: self.trackersEnabled,
-    dht: !!self.dht,
-    log: self.log,
-    blocklist: self.blocklist
+    trackers: self.trackersEnabled
   }, opts))
   self.torrents.push(torrent)
 
