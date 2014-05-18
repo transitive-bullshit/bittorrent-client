@@ -84,7 +84,9 @@ function Client (opts) {
 
   parallel(tasks, function (err) {
     if (err) return self.emit('error', err)
-    self.dht.listen(self.dhtPort)
+    if (self.dht) {
+      self.dht.listen(self.dhtPort)
+    }
     self.ready = true
     self.emit('ready')
   })
