@@ -139,7 +139,7 @@ Client.prototype.get = function (torrentId) {
  *
  * @param {string|Buffer} torrentId magnet uri, torrent file, or infohash
  * @param {Object}        opts      optional torrent-specific options
- * @param {function=}     cb        called with the torrent that was created (might not have metadata yet)
+ * @param {function=}     cb        called when the torrent is ready and has metadata
  */
 Client.prototype.add = function (torrentId, opts, cb) {
   var self = this
