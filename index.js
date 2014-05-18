@@ -1,6 +1,5 @@
 module.exports = Client
 
-var auto = require('run-auto')
 var extend = require('extend.js')
 var DHT = require('bittorrent-dht')
 var EventEmitter = require('events').EventEmitter
@@ -8,6 +7,7 @@ var hat = require('hat')
 var inherits = require('inherits')
 var magnet = require('magnet-uri')
 var once = require('once')
+var parallel = require('run-parallel')
 var parseTorrent = require('parse-torrent')
 var portfinder = require('portfinder')
 var speedometer = require('speedometer')
@@ -52,14 +52,15 @@ function Client (opts) {
 
   self.log = opts.quiet ? function () {} : console.log
 
-  var tasks = {
-    torrentPort: function (cb) {
-      if (self.torrentPort) {
-        cb(null, self.torrentPort)
-      } else {
-        portfinder.getPort(cb)
-      }
-    }
+  var tasks = []
+
+  if (!self.torrentPort) {
+    tasks.push(function (cb) {
+      portfinder.getPort(function (err, port) {
+        self.torrentPort = port
+        cb(err)
+      })
+    })
   }
 
   if (opts.dht && opts.maxDHT > 0) {
@@ -70,30 +71,22 @@ function Client (opts) {
       torrent.addPeer(addr)
     })
 
-    tasks.dhtPort = function (cb) {
+    if (!self.dhtPort) {
       // TODO: DHT port should be consistent between restarts
-      if (self.dhtPort) {
-        cb(null, self.dhtPort)
-      } else {
-        portfinder.getPort(cb)
-      }
+      tasks.push(function (cb) {
+        portfinder.getPort(function (err, port) {
+          self.dhtPort = port
+          cb(err)
+        })
+      })
     }
   }
 
-  var ready = function () {
+  parallel(tasks, function (err) {
+    if (err) return self.emit('error', err)
+    self.dht.listen(self.dhtPort)
     self.ready = true
     self.emit('ready')
-  }
-
-  auto(tasks, function (err, r) {
-    self.dhtPort = r.dhtPort
-    self.torrentPort = r.torrentPort
-
-    if (self.dht) {
-      self.dht.listen(self.dhtPort, ready)
-    } else {
-      ready()
-    }
   })
 }
 
