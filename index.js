@@ -171,7 +171,9 @@ Client.prototype.add = function (torrentId, opts, cb) {
     self.uploadSpeed(uploaded)
   })
 
-  self.emit('addTorrent', torrent)
+  process.nextTick(function () {
+    self.emit('addTorrent', torrent)
+  })
 
   torrent.on('listening', function (port) {
     self.log('Swarm listening on port ' + port)
