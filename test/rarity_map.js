@@ -21,6 +21,8 @@ test('Rarity map usage', function (t) {
   var rarityMap = new RarityMap(swarm, numPieces)
 
   function validateInitial () {
+    // note that getRarestPiece will return a random piece since they're all equal
+    // so repeat the test several times to reasonably ensure its correctness.
     var piece = rarityMap.getRarestPiece()
     t.ok(piece >= 0 && piece < numPieces)
 
@@ -34,9 +36,12 @@ test('Rarity map usage', function (t) {
     t.ok(piece >= 0 && piece < numPieces)
   }
 
-  // test initial/empty case
+  // test initial / empty case
   validateInitial()
+
   rarityMap.recalculate()
+
+  // test initial / empty case after recalc
   validateInitial()
 
   function setPiece (wire, index) {
@@ -94,9 +99,9 @@ test('Rarity map usage', function (t) {
   piece = rarityMap.getRarestPiece()
   t.equal(piece, 3)
 
-  // test rarest piece after removing wires and recalc
   rarityMap.recalculate()
 
+  // test rarest piece after removing wires and recalc
   piece = rarityMap.getRarestPiece()
   t.equal(piece, 3)
 
