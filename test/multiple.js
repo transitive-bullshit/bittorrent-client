@@ -1,4 +1,4 @@
-
+/*
 var BitTorrentClient = require('../')
 var test = require('tape')
 var fs = require('fs')
@@ -57,4 +57,4 @@ test('two simultaneous downloads with dht enabled', function (t) {
     })
   })
 })
-
+*/

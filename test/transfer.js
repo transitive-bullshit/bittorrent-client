@@ -13,7 +13,7 @@ test('external download and transfer between local torrents', function (t) {
 
   // clientA will download the torrent from external peers normally, whereas
   // the isolated clientB will download from its sole peer clientA.
-  var clientA = new BitTorrentClient({ chokeTimeout: Infinity }) // enable external peer discovery
+  var clientA = new BitTorrentClient() // enable external peer discovery
   var clientB = new BitTorrentClient({ dht: false, trackers: false, chokeTimeout: Infinity }) // disable external peer discovery
 
   // clientA starts with metadata from torrent file
