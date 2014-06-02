@@ -1,5 +1,5 @@
 
-var RarityMap = require('../lib/rarity_map')
+var RarityMap = require('../lib/rarity-map')
 var BitField = require('bitfield')
 var Swarm = require('bittorrent-swarm')
 var EventEmitter = require('events').EventEmitter
