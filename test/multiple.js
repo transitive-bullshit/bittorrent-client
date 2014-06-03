@@ -14,7 +14,7 @@ test('two simultaneous downloads with dht disabled', function (t) {
   var client = new BitTorrentClient({ dht: false })
   var numDone = 0
 
-  client.on('error', function (err) { t.error(err) })
+  client.on('error', function (err) { t.fail(err.message) })
 
   torrents.forEach(function (torrent) {
     client.add(torrent)
@@ -39,7 +39,7 @@ test('two simultaneous downloads with dht enabled', function (t) {
   var client = new BitTorrentClient()
   var numDone = 0
 
-  client.on('error', function (err) { t.error(err) })
+  client.on('error', function (err) { t.fail(err.message) })
 
   torrents.forEach(function (torrent) {
     client.add(torrent)
