@@ -133,9 +133,8 @@ Client.prototype.get = function (torrentId) {
 }
 
 /**
- * Add a new torrent to the client. `torrentId` can be any type accepted by the
- * constructor: magnet uri (utf8 string), torrent file (buffer), or info hash (hex
- * string or buffer).
+ * Add a new torrent to the client. `torrentId` can be a magnet uri (utf8 string),
+ * torrent file (buffer), or info hash (hex string or buffer).
  *
  * @param {string|Buffer} torrentId magnet uri, torrent file, or infohash
  * @param {Object}        opts      optional torrent-specific options
