@@ -226,11 +226,13 @@ Client.prototype.destroy = function (cb) {
   if (self.dht)
     self.dht.close()
 
-  var torrents = self.torrents.slice(0) // clone before iteration
-  torrents.forEach(function (torrent) {
-    // TODO: chain cb here
-    self.remove(torrent.infoHash)
+  var tasks = self.torrents.map(function (torrent) {
+    return function (cb) {
+      self.remove(torrent.infoHash)
+    }
   })
+
+  parallel(tasks, cb)
 }
 
 //
