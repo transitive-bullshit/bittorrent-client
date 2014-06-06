@@ -227,7 +227,7 @@ Client.prototype.destroy = function (cb) {
 
   var tasks = self.torrents.map(function (torrent) {
     return function (cb) {
-      self.remove(torrent.infoHash)
+      self.remove(torrent.infoHash, cb)
     }
   })
 
