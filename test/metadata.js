@@ -6,38 +6,40 @@ var fs = require('fs')
 var leaves = fs.readFileSync(__dirname + '/torrents/leaves.torrent')
 var leavesTorrent = parseTorrent(leaves)
 
-test('ut_metadata transfer between local torrents', function (t) {
-  t.plan(3)
+test('ut_metadata transfer', function (t) {
+  t.plan(5)
 
-  var clientA = new BitTorrentClient({ dht: false, trackers: false }) // disable DHT and trackers
-  var clientB = new BitTorrentClient({ dht: false, trackers: false }) // disable DHT and trackers
+  var client1 = new BitTorrentClient({ dht: false, trackers: false })
+  var client2 = new BitTorrentClient({ dht: false, trackers: false })
 
-  clientA.on('torrent', function (torrent) {
-    t.pass('clientA must still emit torrent event')
+  client1.on('torrent', function (torrent) {
+    t.pass('client1 emits torrent event') // even though it started with metadata
   })
 
-  // clientA starts with metadata from torrent file
-  clientA.add(leaves)
+  // client1 starts with metadata from torrent file
+  client1.add(leaves)
 
-  // clientB starts with infohash
-  clientB.add(leavesTorrent.infoHash)
+  // client2 starts with infohash
+  client2.add(leavesTorrent.infoHash)
 
-  clientA.on('error', function (err) { t.error(err) })
-  clientB.on('error', function (err) { t.error(err) })
+  client1.on('error', function (err) { t.fail(err) })
+  client2.on('error', function (err) { t.fail(err) })
 
-  clientA.on('listening', function (torrentA) {
+  client1.on('listening', function (torrentA) {
     t.deepEqual(torrentA.parsedTorrent.info, leavesTorrent.info)
 
-    clientB.on('listening', function (torrentB) {
-      // add each other as sole peers
-      clientB.get(leavesTorrent.infoHash).addPeer('127.0.0.1:' + clientA.torrentPort)
-      clientA.get(leavesTorrent.infoHash).addPeer('127.0.0.1:' + clientB.torrentPort)
+    client2.on('listening', function (torrentB) {
+      client2.get(leavesTorrent.infoHash).addPeer('127.0.0.1:' + client1.torrentPort)
 
-      clientB.on('torrent', function () {
+      client2.on('torrent', function () {
         t.deepEqual(torrentA.parsedTorrent.info, torrentB.parsedTorrent.info)
 
-        clientA.destroy()
-        clientB.destroy()
+        client1.destroy(function () {
+          t.pass('client1 destroyed')
+        })
+        client2.destroy(function () {
+          t.pass('client2 destroyed')
+        })
       })
     })
   })
