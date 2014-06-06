@@ -27,9 +27,8 @@ test('external download and transfer between local torrents', function (t) {
 
   clientA.on('listening', function (torrentA) {
     clientB.on('listening', function (torrentB) {
-      // add each other as peers
+      // add other client as a peer
       clientB.get(leavesTorrent.infoHash).addPeer('localhost:' + clientA.torrentPort)
-      clientA.get(leavesTorrent.infoHash).addPeer('localhost:' + clientB.torrentPort)
 
       var torrentADone = false
       torrentA.once('done', function () {
