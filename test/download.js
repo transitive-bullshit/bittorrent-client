@@ -79,6 +79,7 @@ function downloadTest (t, trackerType) {
 
     client1: ['tracker', function (cb, r) {
       var client1 = new BitTorrentClient({ dht: false })
+      client1.on('error', function (err) { t.fail(err) })
 
       client1.add(parsed)
 
@@ -100,6 +101,7 @@ function downloadTest (t, trackerType) {
 
     client2: ['client1', function (cb, r) {
       var client2 = new BitTorrentClient({ dht: false })
+      client2.on('error', function (err) { t.fail(err) })
 
       client2.add(parsed)
 
