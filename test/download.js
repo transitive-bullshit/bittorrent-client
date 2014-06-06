@@ -9,7 +9,6 @@ var test = require('tape')
 var TrackerServer = require('bittorrent-tracker').Server
 
 // TODO: add a download test for DHT
-// TODO: add a download test for HTTP tracker
 
 var leavesFile = __dirname + '/torrents/Leaves of Grass by Walt Whitman.epub'
 var leavesTorrent = fs.readFileSync(__dirname + '/torrents/leaves.torrent')
@@ -43,7 +42,7 @@ function writeToStorage (storage, file, cb) {
     })
 }
 
-test('Basic download via UDP tracker ("Leaves of Grass" by Walt Whitman)', function (t) {
+function downloadTest (t, trackerType) {
   t.plan(8)
 
   // clone the parsed torrent for this test since we're going to modify it
@@ -57,10 +56,12 @@ test('Basic download via UDP tracker ("Leaves of Grass" by Walt Whitman)', funct
     },
 
     tracker: ['trackerPort', function (cb, r) {
-      var tracker = new TrackerServer({ http: false })
+      var tracker = new TrackerServer(
+        trackerType === 'udp' ? { http: false } : { udp: false }
+      )
 
       // Overwrite announce with our local tracker
-      parsed.announce = [ 'udp://127.0.0.1:' + r.trackerPort ]
+      parsed.announce = [ trackerType + '://127.0.0.1:' + r.trackerPort ]
       parsed.announceList = [ parsed.announce ]
 
       tracker.on('error', function (err) {
@@ -128,4 +129,12 @@ test('Basic download via UDP tracker ("Leaves of Grass" by Walt Whitman)', funct
       t.pass('client2 destroyed')
     })
   })
+}
+
+test('Basic download via UDP tracker ("Leaves of Grass" by Walt Whitman)', function (t) {
+  downloadTest(t, 'udp')
+})
+
+test('Basic download via HTTP tracker ("Leaves of Grass" by Walt Whitman)', function (t) {
+  downloadTest(t, 'http')
 })
