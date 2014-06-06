@@ -8,21 +8,21 @@ var leaves = fs.readFileSync(__dirname + '/torrents/leaves.torrent')
 var leavesTorrent = parseTorrent(leaves)
 
 test('Test supported torrentInfo types', function (t) {
-  t.plan(4)
+  t.plan(5)
 
   function verify (client, torrent) {
     t.equal(torrent.infoHash, leavesTorrent.infoHash)
     client.destroy()
   }
 
-  // info hash as a hex string
+  // info hash (as a hex string)
   var client1 = BitTorrentClient({ dht: false, trackers: false })
     .add(leavesTorrent.infoHash)
     .once('addTorrent', function (torrent) {
       verify(client1, torrent)
     })
 
-  // info hash as a buffer
+  // info hash (as a Buffer)
   var client2 = BitTorrentClient({ dht: false, trackers: false })
     .add(new Buffer(leavesTorrent.infoHash, 'hex'))
     .once('addTorrent', function (torrent) {
@@ -41,5 +41,12 @@ test('Test supported torrentInfo types', function (t) {
     .add(leaves)
     .once('addTorrent', function (torrent) {
       verify(client4, torrent)
+    })
+
+  // parsed torrent (as an Object)
+  var client5 = BitTorrentClient({ dht: false, trackers: false })
+    .add(leavesTorrent)
+    .once('addTorrent', function (torrent) {
+      verify(client5, torrent)
     })
 })

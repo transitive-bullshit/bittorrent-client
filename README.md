@@ -116,6 +116,7 @@ Add a new torrent to the client.
 - info hash (as a hex string or Buffer)
 - magnet uri (as a utf8 string)
 - .torrent file (as a Buffer)
+- parsed torrent (from [parse-torrent](https://github.com/feross/parse-torrent))
 
 Optional `callback` is called when this torrent is ready to be used (i.e. metadata is
 available). Note: if you want access to the torrent object immediately in order to listen

@@ -239,7 +239,7 @@ Client.prototype.destroy = function (cb) {
 //
 
 /**
- * Given a magnet uri, torrent file, or info hash, return a hex string info hash
+ * Given a magnet uri, torrent file, info hash, or parsed torrent, return a hex string info hash
  * @param  {string|Buffer} torrentId magnet uri, torrent file, or infohash
  * @return {string} info hash (hex string)
  */
@@ -264,5 +264,10 @@ Client.toInfoHash = function (torrentId) {
         return null
       }
     }
+  } else if (torrentId && torrentId.infoHash) {
+    // parsed torrent (from parse-torrent module)
+    return torrentId.infoHash
+  } else {
+    return null
   }
 }
