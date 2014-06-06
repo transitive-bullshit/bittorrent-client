@@ -1,4 +1,3 @@
-
 var BitTorrentClient = require('../')
 var test = require('tape')
 
@@ -30,4 +29,3 @@ test('Download "Pride and Prejudice" by Jane Austen with rarest piece first stra
     })
   })
 })
-

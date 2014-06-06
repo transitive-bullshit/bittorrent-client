@@ -1,5 +1,3 @@
-/* vim: set ts=2 sw=2 sts=2 et: */
-
 var BitTorrentClient = require('../')
 var parseTorrent = require('parse-torrent')
 var test = require('tape')
@@ -32,8 +30,8 @@ test('ut_metadata transfer between local torrents', function (t) {
 
     clientB.on('listening', function (torrentB) {
       // add each other as sole peers
-      clientB.get(leavesTorrent.infoHash).addPeer('localhost:' + clientA.torrentPort)
-      clientA.get(leavesTorrent.infoHash).addPeer('localhost:' + clientB.torrentPort)
+      clientB.get(leavesTorrent.infoHash).addPeer('127.0.0.1:' + clientA.torrentPort)
+      clientA.get(leavesTorrent.infoHash).addPeer('127.0.0.1:' + clientB.torrentPort)
 
       clientB.on('torrent', function () {
         t.deepEqual(torrentA.parsedTorrent.info, torrentB.parsedTorrent.info)

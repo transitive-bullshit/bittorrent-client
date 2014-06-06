@@ -1,4 +1,3 @@
-
 var BitTorrentClient = require('../')
 var parseTorrent = require('parse-torrent')
 var test = require('tape')

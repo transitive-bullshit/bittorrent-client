@@ -1,5 +1,3 @@
-/* vim: set ts=2 sw=2 sts=2 et: */
-
 var Storage = require('../lib/storage')
 var parseTorrent = require('parse-torrent')
 var test = require('tape')

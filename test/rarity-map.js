@@ -1,4 +1,3 @@
-
 var RarityMap = require('../lib/rarity-map')
 var BitField = require('bitfield')
 var Swarm = require('bittorrent-swarm')
@@ -112,4 +111,3 @@ test('Rarity map usage', function (t) {
   piece = rarityMap.getRarestPiece(function (i) { return i === 1 || i === 2 })
   t.equal(piece, 2)
 })
-
