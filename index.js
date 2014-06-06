@@ -1,8 +1,9 @@
 module.exports = Client
 
-var extend = require('extend.js')
+var debug = require('debug')('bittorrent-client')
 var DHT = require('bittorrent-dht')
 var EventEmitter = require('events').EventEmitter
+var extend = require('extend.js')
 var hat = require('hat')
 var inherits = require('inherits')
 var magnet = require('magnet-uri')
@@ -11,8 +12,8 @@ var parallel = require('run-parallel')
 var parseTorrent = require('parse-torrent')
 var portfinder = require('portfinder')
 var speedometer = require('speedometer')
-var Torrent = require('./lib/torrent')
 var Storage = require('./lib/storage')
+var Torrent = require('./lib/torrent')
 
 portfinder.basePort = Math.floor(Math.random() * 64000) + 1025 // pick port >1024
 
@@ -49,8 +50,6 @@ function Client (opts) {
   self.blocklist = opts.blocklist
   self.downloadSpeed = speedometer()
   self.uploadSpeed = speedometer()
-
-  self.log = opts.quiet ? function () {} : console.log
 
   var tasks = []
 
@@ -156,7 +155,6 @@ Client.prototype.add = function (torrentId, opts, cb) {
     blocklist: self.blocklist,
     dht: !!self.dht,
     dhtPort: self.dhtPort,
-    log: self.log,
     peerId: self.peerId,
     torrentPort: self.torrentPort,
     trackers: self.trackersEnabled
@@ -175,7 +173,7 @@ Client.prototype.add = function (torrentId, opts, cb) {
   })
 
   torrent.on('listening', function (port) {
-    self.log('Swarm listening on port ' + port)
+    debug('Swarm listening on port ' + port)
     self.emit('listening', torrent)
     // TODO: Add the torrent to the public DHT so peers know to find us
   })
@@ -223,8 +221,9 @@ Client.prototype.remove = function (torrentId, cb) {
 Client.prototype.destroy = function (cb) {
   var self = this
 
-  if (self.dht)
+  if (self.dht) {
     self.dht.close()
+  }
 
   var tasks = self.torrents.map(function (torrent) {
     return function (cb) {
