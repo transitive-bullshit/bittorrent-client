@@ -1,67 +1,131 @@
+var auto = require('run-auto')
 var BitTorrentClient = require('../')
-var parseTorrent = require('parse-torrent')
-var test = require('tape')
+var BlockStream = require('block-stream')
+var extend = require('extend.js')
 var fs = require('fs')
+var parseTorrent = require('parse-torrent')
+var portfinder = require('portfinder')
+var test = require('tape')
+var TrackerServer = require('bittorrent-tracker').Server
 
-var leaves = fs.readFileSync(__dirname + '/torrents/leaves.torrent')
-var leavesTorrent = parseTorrent(leaves)
+// TODO: add a download test for DHT
+// TODO: add a download test for HTTP tracker
 
-// TODO: replace this with a test that can run offline
-test('Download "Pride and Prejudice" by Jane Austen', function (t) {
-  t.plan(4)
+var leavesFile = __dirname + '/torrents/Leaves of Grass by Walt Whitman.epub'
+var leavesTorrent = fs.readFileSync(__dirname + '/torrents/leaves.torrent')
+var leavesParsed = parseTorrent(leavesTorrent)
 
-  var client = new BitTorrentClient()
-  client.add('magnet:?xt=urn:btih:1e69917fbaa2c767bca463a96b5572785c6d8a12')
+var BLOCK_LENGTH = 16 * 1024
+function writeToStorage (storage, file, cb) {
+  var pieceIndex = 0
+  fs.createReadStream(file)
+    .pipe(new BlockStream(leavesParsed.pieceLength, { nopad: true }))
+    .on('data', function (piece) {
+      var index = pieceIndex
+      pieceIndex += 1
 
-  client.on('torrent', function (torrent) {
-    // torrent metadata has been fetched
-    t.equal(torrent.name, 'Pride and Prejudice - Jane Austen - eBook [EPUB, MOBI]')
+      var blockIndex = 0
+      var s = new BlockStream(BLOCK_LENGTH, { nopad: true })
+      s.on('data', function (block) {
+        var offset = blockIndex * BLOCK_LENGTH
+        blockIndex += 1
 
-    var names = [
-      'Pride and Prejudice - Jane Austen.epub',
-      'Pride and Prejudice - Jane Austen.mobi'
-    ]
-
-    torrent.files.forEach(function (file, index) {
-      t.equal(file.name, names[index])
-      // get a readable stream of the file content
-      var stream = file.createReadStream()
+        storage.writeBlock(index, offset, block)
+      })
+      s.write(piece)
+      s.end()
     })
-
-    torrent.once('done', function () {
-      t.pass('torrent downloaded successfully!')
-      client.destroy()
+    .on('end', function () {
+      cb(null)
     })
-  })
-})
-
-// TODO: replace this with a test that can run offline
-test('Download "Leaves of Grass" by Walt Whitman', function (t) {
-  t.plan(3)
-
-  var client = new BitTorrentClient()
-
-  client.add(leavesTorrent.infoHash)
-
-  client.on('error', function (err) { t.error(err) })
-
-  client.on('torrent', function (torrent) {
-    t.equal(torrent.name, 'Leaves of Grass by Walt Whitman.epub')
-
-    var names = [
-      'Leaves of Grass by Walt Whitman.epub'
-    ]
-
-    torrent.files.forEach(function (file, index) {
-      t.equal(file.name, names[index])
-
-      // get a readable stream of the file content
-      var stream = file.createReadStream()
+    .on('error', function (err) {
+      cb(err)
     })
+}
 
-    torrent.once('done', function () {
-      t.pass('torrent downloaded successfully!')
-      client.destroy()
+test('Basic download via UDP tracker ("Leaves of Grass" by Walt Whitman)', function (t) {
+  t.plan(8)
+
+  // clone the parsed torrent for this test since we're going to modify it
+  var parsed = extend({}, leavesParsed)
+
+  var trackerStartCount = 0
+
+  auto({
+    trackerPort: function (cb) {
+      portfinder.getPort(cb)
+    },
+
+    tracker: ['trackerPort', function (cb, r) {
+      var tracker = new TrackerServer({ http: false })
+
+      // Overwrite announce with our local tracker
+      parsed.announce = [ 'udp://127.0.0.1:' + r.trackerPort ]
+      parsed.announceList = [ parsed.announce ]
+
+      tracker.on('error', function (err) {
+        t.fail(err)
+      })
+
+      tracker.on('start', function (addr) {
+        trackerStartCount += 1
+      })
+
+      tracker.listen(r.trackerPort, function () {
+        cb(null, tracker)
+      })
+    }],
+
+    client1: ['tracker', function (cb, r) {
+      var client1 = new BitTorrentClient({ dht: false })
+
+      client1.add(parsed)
+
+      client1.on('torrent', function (torrent) {
+        // torrent metadata has been fetched -- sanity check it
+        t.equal(torrent.name, 'Leaves of Grass by Walt Whitman.epub')
+
+        var names = [
+          'Leaves of Grass by Walt Whitman.epub'
+        ]
+
+        t.deepEqual(torrent.files.map(function (file) { return file.name }), names)
+
+        writeToStorage(torrent.storage, leavesFile, function (err) {
+          cb(err, client1)
+        })
+      })
+    }],
+
+    client2: ['client1', function (cb, r) {
+      var client2 = new BitTorrentClient({ dht: false })
+
+      client2.add(parsed)
+
+      client2.on('torrent', function (torrent) {
+        torrent.files.forEach(function (file) {
+          file.createReadStream()
+        })
+
+        torrent.once('done', function () {
+          t.pass('client2 downloaded torrent from client1')
+          cb(null, client2)
+        })
+      })
+    }]
+
+  }, function (err, r) {
+    t.error(err)
+    t.equal(trackerStartCount, 2)
+
+    r.tracker.close(function () {
+      t.pass('tracker closed')
+    })
+    r.client1.destroy(function () {
+      t.pass('client1 destroyed')
+    })
+    r.client2.destroy(function () {
+      t.pass('client2 destroyed')
     })
   })
 })
