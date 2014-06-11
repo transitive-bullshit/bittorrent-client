@@ -25,14 +25,15 @@ test('ut_metadata transfer', function (t) {
   client1.on('error', function (err) { t.fail(err) })
   client2.on('error', function (err) { t.fail(err) })
 
-  client1.on('listening', function (torrentA) {
-    t.deepEqual(torrentA.parsedTorrent.info, leavesTorrent.info)
+  client1.on('listening', function (torrent1) {
+    t.deepEqual(torrent1.parsedTorrent.info, leavesTorrent.info)
 
-    client2.on('listening', function (torrentB) {
-      client2.get(leavesTorrent.infoHash).addPeer('127.0.0.1:' + client1.torrentPort)
+    client2.on('listening', function (torrent2) {
+      // manually add the peer
+      torrent2.addPeer('127.0.0.1:' + client1.torrentPort)
 
       client2.on('torrent', function () {
-        t.deepEqual(torrentA.parsedTorrent.info, torrentB.parsedTorrent.info)
+        t.deepEqual(torrent1.parsedTorrent.info, torrent2.parsedTorrent.info)
 
         client1.destroy(function () {
           t.pass('client1 destroyed')
