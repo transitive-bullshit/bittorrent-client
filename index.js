@@ -1,7 +1,7 @@
 module.exports = Client
 
 var debug = require('debug')('bittorrent-client')
-var DHT = require('bittorrent-dht')
+var DHT = require('bittorrent-dht/client')
 var EventEmitter = require('events').EventEmitter
 var extend = require('extend.js')
 var hat = require('hat')
@@ -30,12 +30,11 @@ function Client (opts) {
 
   opts = extend({
     dht: true,
-    maxDHT: 1000,
     trackers: true,
     blocklist: []
   }, opts)
 
-  // TODO: should these ids be consistent between restarts?
+  // TODO: these ids should be consistent between restarts!
   self.peerId = opts.peerId || new Buffer('-WW0001-' + hat(48), 'utf8')
   self.nodeId = opts.nodeId || new Buffer(hat(160), 'hex')
 
@@ -43,7 +42,6 @@ function Client (opts) {
   self.torrentPort = opts.torrentPort
 
   self.trackersEnabled = opts.trackers
-  self.maxDHT = opts.maxDHT // maximum number of peers to find through DHT
 
   self.ready = false
   self.torrents = []
@@ -62,7 +60,7 @@ function Client (opts) {
     })
   }
 
-  if (opts.dht && opts.maxDHT > 0) {
+  if (opts.dht) {
     self.dht = new DHT({ nodeId: self.nodeId })
 
     self.dht.on('peer', function (addr, infoHash) {
@@ -190,9 +188,7 @@ Client.prototype.add = function (torrentId, opts, cb) {
   })
 
   if (self.dht) {
-    // TODO: fix dht to support calling this multiple times
-    self.dht.setInfoHash(torrent.infoHash)
-    self.dht.findPeers(self.maxDHT)
+    self.dht.lookup(torrent.infoHash)
   }
 
   return torrent
@@ -222,7 +218,7 @@ Client.prototype.destroy = function (cb) {
   var self = this
 
   if (self.dht) {
-    self.dht.close()
+    self.dht.destroy()
   }
 
   var tasks = self.torrents.map(function (torrent) {

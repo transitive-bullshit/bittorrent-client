@@ -91,7 +91,6 @@ If `opts` is specified, then the default options (shown below) will be overridde
 
 ``` js
 {
-  maxDHT: 100,            // Max number of peers to find through DHT (across all torrents)
   maxPeers: 100,          // Max number of peers to connect to (per torrent)
   path: '/tmp/some-name', // Where to save the torrent file data
   peerId: '',             // Wire protocol peer ID (otherwise, randomly generated)
