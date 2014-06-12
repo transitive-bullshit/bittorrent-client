@@ -1,7 +1,7 @@
 {
   "name": "bittorrent-client",
   "description": "Simple, robust, streaming bittorrent client.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": {
     "name": "Feross Aboukhadijeh",
     "email": "feross@feross.org",
