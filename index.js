@@ -61,6 +61,7 @@ function Client (opts) {
   }
 
   if (opts.dht) {
+    // TODO: listen for 'ready event'
     self.dht = new DHT({ nodeId: self.nodeId })
 
     self.dht.on('peer', function (addr, infoHash) {
