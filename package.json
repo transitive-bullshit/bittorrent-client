@@ -16,7 +16,7 @@
     "bittorrent-swarm": "^0.12.0",
     "bittorrent-tracker": "^2.0.0",
     "debug": "^1.0.0",
-    "end-of-stream": "^0.1.4",
+    "end-of-stream": "^1.0.0",
     "extend.js": "^0.0.1",
     "hat": "0.0.3",
     "inherits": "^2.0.1",
