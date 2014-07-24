@@ -42,11 +42,8 @@ function writeToStorage (storage, file, cb) {
     })
 }
 
-function downloadTest (t, trackerType) {
+function downloadTest (t, serverType) {
   t.plan(8)
-
-  // clone the parsed torrent for this test since we're going to modify it
-  var parsed = extend({}, leavesParsed)
 
   var trackerStartCount = 0
 
@@ -57,12 +54,16 @@ function downloadTest (t, trackerType) {
 
     tracker: ['trackerPort', function (cb, r) {
       var tracker = new TrackerServer(
-        trackerType === 'udp' ? { http: false } : { udp: false }
+        serverType === 'udp' ? { http: false } : { udp: false }
       )
 
+      var announceUrl = serverType === 'http'
+        ? 'http://127.0.0.1:' + r.trackerPort + '/announce'
+        : 'udp://127.0.0.1:' + r.trackerPort
+
       // Overwrite announce with our local tracker
-      parsed.announce = [ trackerType + '://127.0.0.1:' + r.trackerPort ]
-      parsed.announceList = [ parsed.announce ]
+      leavesParsed.announce = [ announceUrl ]
+      leavesParsed.announceList = [[ announceUrl ]]
 
       tracker.on('error', function (err) {
         t.fail(err)
@@ -81,7 +82,7 @@ function downloadTest (t, trackerType) {
       var client1 = new BitTorrentClient({ dht: false })
       client1.on('error', function (err) { t.fail(err) })
 
-      client1.add(parsed)
+      client1.add(leavesParsed)
 
       client1.on('torrent', function (torrent) {
         // torrent metadata has been fetched -- sanity check it
@@ -103,7 +104,7 @@ function downloadTest (t, trackerType) {
       var client2 = new BitTorrentClient({ dht: false })
       client2.on('error', function (err) { t.fail(err) })
 
-      client2.add(parsed)
+      client2.add(leavesParsed)
 
       client2.on('torrent', function (torrent) {
         torrent.files.forEach(function (file) {
@@ -133,10 +134,10 @@ function downloadTest (t, trackerType) {
   })
 }
 
-test('Basic download via UDP tracker ("Leaves of Grass" by Walt Whitman)', function (t) {
+test('Basic download via UDP tracker', function (t) {
   downloadTest(t, 'udp')
 })
 
-test('Basic download via HTTP tracker ("Leaves of Grass" by Walt Whitman)', function (t) {
+test('Basic download via HTTP tracker', function (t) {
   downloadTest(t, 'http')
 })
