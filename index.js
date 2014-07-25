@@ -38,6 +38,7 @@ function Client (opts) {
   self.peerId = opts.peerId || new Buffer('-WW0001-' + hat(48), 'utf8')
   self.nodeId = opts.nodeId || new Buffer(hat(160), 'hex')
 
+  // TODO: DHT port should be consistent between restarts
   self.dhtPort = opts.dhtPort
   self.torrentPort = opts.torrentPort
 
@@ -52,6 +53,8 @@ function Client (opts) {
   var tasks = []
 
   if (!self.torrentPort) {
+    // TODO: move portfinder stuff into bittorrent-swarm, like how
+    // it works with bittorrent-dht
     tasks.push(function (cb) {
       portfinder.getPort(function (err, port) {
         self.torrentPort = port
@@ -61,31 +64,21 @@ function Client (opts) {
   }
 
   if (opts.dht) {
-    var dhtOpts = extend({ nodeId: self.nodeId }, opts.dht)
-    // TODO: listen for 'ready event'
-    self.dht = new DHT(dhtOpts)
-
-    self.dht.on('peer', function (addr, infoHash) {
-      var torrent = self.get(infoHash)
-      torrent.addPeer(addr)
-    })
-
-    if (!self.dhtPort) {
-      // TODO: DHT port should be consistent between restarts
-      tasks.push(function (cb) {
-        portfinder.getPort(function (err, port) {
-          self.dhtPort = port
-          cb(err)
-        })
+    tasks.push(function (cb) {
+      self.dht = new DHT(extend({ nodeId: self.nodeId }, opts.dht))
+      self.dht.on('peer', self._onDHTPeer.bind(self))
+      self.dht.on('listening', function (port) {
+        self.dhtPort = port
       })
-    }
+      self.dht.on('ready', function () {
+        cb()
+      })
+      self.dht.listen(self.dhtPort)
+    })
   }
 
   parallel(tasks, function (err) {
     if (err) return self.emit('error', err)
-    if (self.dht) {
-      self.dht.listen(self.dhtPort)
-    }
     self.ready = true
     self.emit('ready')
   })
@@ -141,9 +134,7 @@ Client.prototype.get = function (torrentId) {
  */
 Client.prototype.add = function (torrentId, opts, cb) {
   var self = this
-  if (!self.ready) {
-    return self.once('ready', self.add.bind(self, torrentId, opts, cb))
-  }
+  if (!self.ready) return self.once('ready', self.add.bind(self, torrentId, opts, cb))
   if (typeof opts === 'function') {
     cb = opts
     opts = {}
@@ -190,10 +181,12 @@ Client.prototype.add = function (torrentId, opts, cb) {
   })
 
   if (self.dht) {
-    self.dht.lookup(torrent.infoHash)
+    self.dht.lookup(torrent.infoHash, function (err) {
+      self.dht.announce(torrent.infoHash, self.torrentPort, function () {
+        torrent.emit('announce')
+      })
+    })
   }
-
-  return torrent
 }
 
 /**
@@ -230,6 +223,12 @@ Client.prototype.destroy = function (cb) {
   })
 
   parallel(tasks, cb)
+}
+
+Client.prototype._onDHTPeer = function (addr, infoHash) {
+  var self = this
+  var torrent = self.get(infoHash)
+  torrent.addPeer(addr)
 }
 
 //
