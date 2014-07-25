@@ -28,10 +28,10 @@ function Client (opts) {
   if (!(self instanceof Client)) return new Client(opts)
   EventEmitter.call(self)
 
+  // default options
   opts = extend({
     dht: true,
-    trackers: true,
-    blocklist: []
+    trackers: true
   }, opts)
 
   // TODO: these ids should be consistent between restarts!
@@ -45,7 +45,7 @@ function Client (opts) {
 
   self.ready = false
   self.torrents = []
-  self.blocklist = opts.blocklist
+  self.blocklist = opts.blocklist || []
   self.downloadSpeed = speedometer()
   self.uploadSpeed = speedometer()
 
