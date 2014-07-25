@@ -61,8 +61,9 @@ function Client (opts) {
   }
 
   if (opts.dht) {
+    var dhtOpts = extend({ nodeId: self.nodeId }, opts.dht)
     // TODO: listen for 'ready event'
-    self.dht = new DHT({ nodeId: self.nodeId })
+    self.dht = new DHT(dhtOpts)
 
     self.dht.on('peer', function (addr, infoHash) {
       var torrent = self.get(infoHash)
